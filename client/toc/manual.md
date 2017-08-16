@@ -668,6 +668,7 @@ demolist.editing = true
 ```
 
 * lua sample
+
 ```lua
 widgetid.ontouchup = function(sv,x,y)
     print("ontouchup",sv,x,y)
