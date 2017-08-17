@@ -1,4 +1,5 @@
 Reference Manual
+================
 
 # API
 
@@ -52,8 +53,8 @@ This the abstract class of all widget.
 | reset | void | void | reset widget status by status saved before. |
 | suspendLayout | void | void | suspend layout in order to do layout transaction. |
 | resumeLayout | duration:float = 0, oncomplete:function = nil | void | commit layout changes |
-| getSnapshot | void | img:[LuaImage] | take snapshot of this widget |
-| getContentSnapshot | void | img:[LuaImage] | take content snapshot of this widget |
+| getSnapshot | void | img:[LuaImage](#luaimage) | take snapshot of this widget |
+| getContentSnapshot | void | img:[LuaImage](#luaimage) | take content snapshot of this widget |
 | getRect | void | x:number,y:number,width:number,height:number | 	get the rect of this widget |
 | getMarginOnView | widget:[uiwidget](#ui-base-widget) | top:number,right:number,bottom:number,left:number | |
 | getRectOnView | widget:[uiwidget](#ui-base-widget) | x:number,y:number,width:number,height:number | |
@@ -694,6 +695,382 @@ local x,y = widgetid:getContentOffset()
 
 
 ## Service
+
+### device
+
+* APIs
+
+| Property      | Parameters    | Return Type   | Description   |
+| ------------- | ------------- | ------------- | ------------- |
+| getDiskInfos | void | [DiskInfoList](#diskinfo) | get disk infos |
+| sms | [SMSTable](#smstable) | boolean | launch system sms |
+| auth | msg:string, callback:LuaFunction | boolean | finger auth, ios only. |
+| call | phonenumber:string | boolean | launch system phone call |
+| getPasteboardText | void | string | get string from pasteboard |
+| setPasteboardText | value:string | put string to pasteboard |
+| getNetworkType | void | string | get network type in string |
+| canOpenURL | url:string | boolean | check whether the url can be open. |
+| openURL | url:string | boolean | open the url |
+| hasApp | appidentifier:string | boolean | check whether app exist, scheme in ios or id in android. |
+| openApp | appidentifier:string | boolean | open app |
+| getUUID | void | string | get device uuid | get device uuid, it will change if user erase the system in ios. |
+| loadFont | fontPath:string, fontname:string | void | load customize font. |
+| playSoundFile | path:string | void | play a short sound file. |
+| clearSoundCache | void | void | ios only |
+| vibrate | void | void | vibrate the device |
+
+* Properties
+
+| Property      | Type          | Description   |
+| ------------- | ------------- | ------------- |
+| userAgent | string | get or change user agent on web request. |
+| statusBarHidden | boolean | rw |
+| statusBarStyle | StatusBarStyle | can be StatusBarStyleDefault / StatusBarStyleLightContent |
+| batteryLevel | number | get battry level, read only. |
+| flashlight | boolean | turn on or turn off the flashlight. |
+| wlan | boolean | check whether wlan is available, read only. |
+| statusBarHeight | number | get the statusBarHeight, read only |
+
+* Constants
+| Property      | Type          | Description   |
+| ------------- | ------------- | ------------- |
+| StatusBarStyleDefault | StatusBarStyle | |
+| StatusBarStyleLightContent | StatusBarStyle | |
+
+DiskInfo
+========
+```js
+{
+    {
+        "freeSpace": 123,
+        "totalSpace": 456,
+        "deviceName": "/dev/disk1",
+        "format": "nfs"
+    }
+    ...
+}
+```
+SMSTable
+========
+```js
+{
+    "message": "xxx",
+    "numbers": [
+        13811111111,
+        13822222222
+    ]
+}
+```
+
+* lua sample
+
+```lua
+
+local deviceservice = registry.getService("device")
+local ui = require "framework.ui"
+
+local btn = demoview:addChild(ui.button{label = "INFO"})
+
+btn.onclick = function()
+	for k,v in pairs(deviceservice) do
+	    print(k,v)
+	end
+	print(deviceservice.batteryLevel) -- [16:18:27.236] 0.89999997615814
+	print(deviceservice.wlan)  -- [16:18:27.242] true
+	print(deviceservice.userAgent) -- [16:18:27.243] Mozilla/5.0 (iPhone; CPU iPhone OS 7_1 like Mac OS X) AppleWebKit/537.51.2 (KHTML, like Gecko) Mobile/11D167 MaryKayMobility/1.2.0
+	deviceservice.flashlight = not deviceservice.flashlight
+	deviceservice.statusBarHidden = not deviceservice.statusBarHidden
+	deviceservice:vibrate()
+	sleep(5)
+	deviceservice:playSoundFile("tap.aif")
+end
+
+local btn = demoview:addChild(ui.button{label = "Read Pasteboard", marginTop = 60})
+
+btn.onclick = function()
+	local value = deviceservice:getPasteboardText()
+	if value and #(value) > 0 then
+		alert(value)
+	end
+end
+
+local btn = demoview:addChild(ui.button{label = "Write Pasteboard", marginTop = 120})
+
+btn.onclick = function()
+	deviceservice:setPasteboardText(string.format("%1.3f", math.random(10000) / 1000))
+end
+
+```
+
+### email
+
+* lua sample
+
+```lua
+local emailservice = registry.getService("email")
+emailservice:send{
+    subject = "Subject",
+    recipients = {"test@test.com"},
+    ccrecipients = {"test@test.com"},
+    bccrecipients = {"test@test.com"},
+    body = "Message Body",
+    attachments = {
+        {
+            name = "snapshot.png",
+            mime = "image/png",
+            data = _root.snapshot:getPNGData()
+        }
+    }
+}
+```
+
+### appmanagement
+
+* APIs
+
+| Property      | Parameters    | Return Type   | Description   |
+| ------------- | ------------- | ------------- | ------------- |
+| installFile | filePath:string, appId:string | result:boolean | install app from local path (path from downloadinfo) |
+| installURL | url:string, appId:string | result:boolean | install app from remote url |
+| scan | void | void | refresh installed apps |
+| remove | appId:string, removeAll:boolean(optional) | result:boolean | remove app, if not removeAll, app data will not be removed. |
+| list | category:string | sandboxs:EOSList | list apps by category |
+| pathForApp | appId:string | path:string | return app's absolute path by appId |
+| getAppSandbox | appId:string | sandbox:AppSandbox | return the sandbox by appId |
+| getPageSandbox | appId:string, pageId:string(optional) | sandbox:PageSandbox | get page sandbox by appId and pageId, if pageId was not set, return the page sandbox of the default page. |
+
+### locale
+
+* lua sample
+
+```lua
+local locale = registry.getService("locale")
+print(locale["some.locale.key"])
+```
+
+### mp3
+
+* APIs
+
+| Property      | Parameters    | Return Type   | Description   |
+| ------------- | ------------- | ------------- | ------------- |
+| load | filePath:string | void | load audio file to play |
+| play | oncomplete:LuaFunction | void | |
+| getDuration | void | number | |
+| getCurrentTime | void | number | |
+| setCurrentTime | double | void | |
+| startRecord | filePath:string | void | |
+| stopRecord | void | void | |
+| setSampleRate | number | void | default 11025 |
+
+* lua sample
+
+```lua
+local mp3 = registry.getService("mp3")
+mp3:setSampleRate(8000)
+mp3:startRecord("data:///record.mp3")
+
+sleep(5)
+mp3:stopRecord()
+sleep(2)
+mp3:load("data:///record.mp3")
+
+print("duration", mp3:getDuration())
+mp3:play()
+sleep(2)
+print("CurrentTime", mp3:getCurrentTime())
+mp3:setCurrentTime(1)
+sleep(3)
+print("CurrentTime", mp3:getCurrentTime())
+mp3:setCurrentTime(2)
+```
+
+### location
+
+* APIs
+
+| Property      | Parameters    | Return Type   | Description   |
+| ------------- | ------------- | ------------- | ------------- |
+| addLocationWatcher | func:LuaFunction | watcher:LuaFunctionWatcher | add location watcher, will be called when location changes. callback(location:LuaLocation) |
+| addHeadingWatcher | func:LuaFunction | watcher:LuaFunctionWatcher | add heading watcher, will be called when heading changes. callback(heading:LuaHeading) |
+| start | void | result:boolean | start location service |
+| stop | void | result:boolean | stop location service |
+| newLocation | latitude:number,longitude:number | location:LuaLocation | create a new LuaLocation Object |
+
+### ilbc
+
+* APIs
+
+| Property      | Parameters    | Return Type   | Description   |
+| ------------- | ------------- | ------------- | ------------- |
+| play | filePath:string | void | |
+| startRecord | filePath:string | void | |
+| stopRecord | void | void | |
+
+* lua sample
+
+```lua
+local ilbc = registry.getService("ilbc")
+ilbc:startRecord("data:///record.ilbc")
+
+sleep(5)
+ilbc:stopRecord()
+sleep(2)
+ilbc:play("data:///record.ilbc")
+```
+
+### zbar
+
+* APIs
+
+| Property      | Parameters    | Return Type   | Description   |
+| ------------- | ------------- | ------------- | ------------- |
+| setOverlay | layout[uiwidget](#ui-base-widget) | void | set the scan overlay ui. |
+| removeAllConfig | void | void | remove all zbar configs |
+| addConfig | string | void | add zbar config line. |
+| setScanCrop | x,y,width,height | void | x,y,width,height [0,1] |
+| scan | onfound:function | void | onfound(self, item1, item2?, ...), callback on recognized new item. item format: {type: xxx, data: xxx}  |
+| cancel | oncompleted:funciton? | void | oncompleted will be called on cancel completed. |
+
+* lua samples
+<!-- [FILE] sample/scripts/service/zbar.lua -->
+
+```lua
+local zbs = registry.getService("zbar")
+local barcode = registry.getService("barcode")
+
+local ui = require "framework.ui"
+
+local btn = demoview:addChild(ui.button{label = "X"})
+
+btn.onclick = function()
+	local overlay = ui.view{backgroundColor = "red", backgroundAlpha = 0.5}
+	overlay:addChild(ui.view{backgroundColor = "blue", backgroundAlpha = 0.5, width = 200, height = 200, margin = "auto"})
+	overlay:addChild(ui.button{label = "Cancel", color = "white", borderColor = "white", borderWidth = 1, onclick = function()
+		zbs:cancel()
+	end})
+	zbs:setOverlay(overlay)
+
+	zbs:removeAllConfig()
+
+	zbs:setScanCrop((_root.width - 200) / 2 /_root.width, (_root.height - 200) / 2 /_root.height, 200 / _root.width, 200 / _root.height)
+	zbs:scan(function(zbs, item)
+		btn.label = item.data
+		alert(item.type, item.data)
+	end)
+end
+
+local btn = demoview:addChild(ui.button{label = "QRCode Only", marginTop = 60})
+
+btn.onclick = function()
+	local overlay = ui.view{backgroundColor = "red", backgroundAlpha = 0.5}
+	overlay:addChild(ui.view{backgroundColor = "blue", backgroundAlpha = 0.5, width = 200, height = 200, margin = "auto"})
+	overlay:addChild(ui.button{label = "Cancel", color = "white", borderColor = "white", borderWidth = 1, onclick = function()
+		zbs:cancel()
+	end})
+	zbs:setOverlay(overlay)
+
+	zbs:removeAllConfig()
+	zbs:addConfig("*.enable=0")
+	zbs:addConfig("qrcode.enable=1")
+
+	zbs:setScanCrop((_root.width - 200) / 2 /_root.width, (_root.height - 200) / 2 /_root.height, 200 / _root.width, 200 / _root.height)
+	zbs:scan(function(zbs, item)
+		btn.label = item.data
+		alert(item.type, item.data)
+	end)
+end
+
+local btn = demoview:addChild(ui.button{label = "IOS", marginTop = 120})
+
+btn.onclick = function()
+	local overlay = ui.view{backgroundColor = "red", backgroundAlpha = 0.5}
+	overlay:addChild(ui.view{backgroundColor = "blue", backgroundAlpha = 0.5, width = 200, height = 200, margin = "auto"})
+	overlay:addChild(ui.button{label = "Cancel", color = "white", borderColor = "white", borderWidth = 1, onclick = function()
+		barcode:cancel()
+	end})
+	barcode:setOverlay(overlay)
+	barcode:setScanCrop((_root.width - 200) / 2 /_root.width, (_root.height - 200) / 2 /_root.height, 200 / _root.width, 200 / _root.height)
+	barcode:scan(function(barcode, item)
+		btn.label = item.data
+		alert(item.type, item.data)
+	end)
+end
+
+```
+
+### barcode
+
+same as [zbar serice](#zbar)
+
+### contacts
+
+* APIs
+
+| Property      | Parameters    | Return Type   | Description   |
+| ------------- | ------------- | ------------- | ------------- |
+| load | func:function | void | load contacts, func will be invoked on complete |
+| addChangeWatcher | func:function | LuaFunctionWatcher | func will be invoked on contacts changes. |
+| getAll | void | List | get all contacts List, item in list: LuaRecord |
+
+* lua sample
+
+```lua
+local contactsService = registry.getService("contacts")
+local watcher = contactsService:addChangeWatcher(function(...)
+	print(...)
+end)
+contactsService:load(function(cs, success)
+	print(cs, success)
+	for i,v in ipairs(cs.all) do
+		for i2,v2 in pairs(v) do
+			print(i2,v2)
+		end
+		print(i,v.fullName, json.encode(v.phones))
+	end
+end)
+```
+
+### alipay
+
+```lua
+local alipay = registry.getService("alipay")
+
+local signStr = "xxx"
+alipay:pay(signStr, function(ret)
+    for k,v in pairs(ret) do
+        print(k,v)
+    end
+end)
+```
+
+```lua
+-- If app has been killed before relaunch by alipay, you can get result from globalsandbox by key `$alipay_result`
+local ret = sandbox:getGlobalSandbox():get("$alipay_result")
+if ret then
+    -- clear result
+    sandbox:getGlobalSandbox():put("$alipay_result", nil)
+
+    for k,v in pairs(ret) do
+        print(k,v)
+    end
+end
+```
+
+### image
+
+### APIs
+
+| Property      | Parameters    | Return Type   | Description   |
+| ------------- | ------------- | ------------- | ------------- |
+| load | filePath:string | [LuaImage](#luaimage) | load image file |
+
+### Samples
+
+```lua
+local imageservice = registry.getService("image")
+local img = imageservice:load(filePath)
+```
 
 ## C Function
 
