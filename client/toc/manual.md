@@ -732,13 +732,14 @@ local x,y = widgetid:getContentOffset()
 | statusBarHeight | number | get the statusBarHeight, read only |
 
 * Constants
+
 | Property      | Type          | Description   |
 | ------------- | ------------- | ------------- |
 | StatusBarStyleDefault | StatusBarStyle | |
 | StatusBarStyleLightContent | StatusBarStyle | |
 
-DiskInfo
-========
+#### DiskInfo
+
 ```js
 {
     {
@@ -750,8 +751,9 @@ DiskInfo
     ...
 }
 ```
-SMSTable
-========
+
+#### SMSTable
+
 ```js
 {
     "message": "xxx",
@@ -891,11 +893,11 @@ mp3:setCurrentTime(2)
 
 | Property      | Parameters    | Return Type   | Description   |
 | ------------- | ------------- | ------------- | ------------- |
-| addLocationWatcher | func:LuaFunction | watcher:LuaFunctionWatcher | add location watcher, will be called when location changes. callback(location:LuaLocation) |
-| addHeadingWatcher | func:LuaFunction | watcher:LuaFunctionWatcher | add heading watcher, will be called when heading changes. callback(heading:LuaHeading) |
+| addLocationWatcher | callback:function | watcher:[LuaFunctionWatcher](#luafunctionwatcher) | add location watcher, will be called when location changes. callback(location:[LuaLocation](#lualocation)) |
+| addHeadingWatcher | callback:function | watcher:[LuaFunctionWatcher](#luafunctionwatcher) | add heading watcher, will be called when heading changes. callback(heading:[LuaHeading](#luaheading)) |
 | start | void | result:boolean | start location service |
 | stop | void | result:boolean | stop location service |
-| newLocation | latitude:number,longitude:number | location:LuaLocation | create a new LuaLocation Object |
+| newLocation | latitude:number,longitude:number | location:[LuaLocation](#lualocation) | create a new LuaLocation Object |
 
 ### ilbc
 
@@ -925,7 +927,7 @@ ilbc:play("data:///record.ilbc")
 
 | Property      | Parameters    | Return Type   | Description   |
 | ------------- | ------------- | ------------- | ------------- |
-| setOverlay | layout[uiwidget](#ui-base-widget) | void | set the scan overlay ui. |
+| setOverlay | layout:[uiwidget](#ui-base-widget) | void | set the scan overlay ui. |
 | removeAllConfig | void | void | remove all zbar configs |
 | addConfig | string | void | add zbar config line. |
 | setScanCrop | x,y,width,height | void | x,y,width,height [0,1] |
@@ -933,6 +935,7 @@ ilbc:play("data:///record.ilbc")
 | cancel | oncompleted:funciton? | void | oncompleted will be called on cancel completed. |
 
 * lua samples
+
 <!-- [FILE] sample/scripts/service/zbar.lua -->
 
 ```lua
@@ -1074,7 +1077,526 @@ local img = imageservice:load(filePath)
 
 ## C Function
 
+### base64
+
+* lua sample
+
+```lua
+local base64 = require "base64"
+base64.encode(xxx)
+base64.decode(xxx)
+base64.code("different-code-map-with-size-64")
+
+```
+
+### cjson
+
+* lua sample
+
+```lua
+local cjson = require "cjson"
+-- local cjson = require "cjson.safe"
+
+cjson.encode(xxx)
+cjson.decode(xxx)
+
+```
+
+### openssl
+
+[Document](http://zhaozg.github.io/lua-openssl/)
+
+### cv
+
+Check 3rdparty/luacv_doc.pdf
+
+### http
+
+* `escape(str:string)`
+call to curl_escape
+
+* `unescape(str:string)`
+call to curl_unescape
+
+* `cookiejar(path:string)`
+set the default cookiejar path
+
+* `cainfo(path:string)`
+set the default cainfo path
+
+* `capath(path:string)`
+set the default capath path
+
+* `get(arg:table or string)`
+* `post(arg:table or string)`
+* `put(arg:table or string)`
+* `head(arg:table or string)`
+* `update(arg:table or string)`
+* `delete(arg:table or string)`
+
+---------
+
+if arg is string, use it as `url` key in the following arg table.
+
+---------
+keys in the `arg`:
+
+* `url: string`
+
+	the url path string
+
+* `headers: table?`
+
+	the request headers, format `{key = value, key2 = value2}`
+
+* `verbose: boolean?`
+
+	save all request message to file named verbose.log
+
+* `dns_servers: string?`
+
+	customize the dns servers, format `1.2.3.4,2.3.4.5`, refer to `CURLOPT_DNS_SERVERS`
+
+* `onprogress: function?`
+
+	progress callback, arg1 => dltotal:integer, arg2 => dlnow:integer, arg3 => ultotal:integer, arg4 => ulnow:integer, refer to `CURLOPT_PROGRESSFUNCTION`
+
+* `timeout: number?`
+
+	low speed timeout, less than 0 in 1min, refer to `CURLOPT_LOW_SPEED_TIME`
+
+* `conntimeout: number?`
+
+	connection timeout, `CURLOPT_TIMEOUT`
+
+* `ssl_verifypeer: integer?`, refer to `CURLOPT_SSL_VERIFYPEER`
+
+* `ssl_verifyhost: integer?`, refer to `CURLOPT_SSL_VERIFYHOST`
+
+* `sslcert: string?`, refer to `CURLOPT_SSLCERT`
+
+* `sslcertpasswd: string?`, refer to `CURLOPT_SSLCERTPASSWD`
+
+* `sslcerttype: string?`, refer to `CURLOPT_SSLCERTTYPE`
+
+* `sslkey: string?`, refer to `CURLOPT_SSLKEY`
+
+* `sslkeypasswd: string?`, refer to `CURLOPT_SSLKEYPASSWD`
+
+* `sslkeytype: string?`, refer to `CURLOPT_SSLKEYTYPE`
+
+* `cainfo: string?`, refer to `CURLOPT_CAINFO`
+
+* `capath: string?`, refer to `CURLOPT_CAPATH`
+
+* `proxytunnel: integer?`, refer to `CURLOPT_HTTPPROXYTUNNEL`
+
+* `proxy: string?`, refer to `CURLOPT_PROXY`, we did support http proxy only.
+
+* `proxyport: integer?`, refer to `CURLOPT_PROXYPORT`
+
+* `onsend: function?`
+
+	callback for data upload, refer to `CURLOPT_READFUNCTION`
+
+* `body: string?`
+
+	full body for data to be sent, available if onsend not defined.
+
+* `onreceive: function?`
+
+	callback on receive data from remote, if not set, get the response body from reponsetable.body, arg1 => data:string
+
+* `onheader: function?`
+
+	callback on receive the header part, arg1 => header:table
+
+* `oncomplete: function?`
+
+	callback on http request complete, the http operation return nothing, if not set, the http operation return the responsetable only the request completed. arg1 => responsetable:table
+
+* `forbid_reuse: integer?` forbidden connection reuse on http/1.1, refer to `CURLOPT_FORBID_REUSE`
+
+* `cookiejar: string?`
+
+	cookiejar used by this request, refer to `CURLOPT_COOKIEJAR`,`CURLOPT_COOKIEFILE`
+
+---------
+
+### responsetable
+
+---------
+keys in the responsetable:
+
+* `responseCode: integer`
+
+	response code of this request, available on `onheader` callback also.
+
+* `body: string`
+
+	response body, available on `onreceive` callback not set.
+
+* `headers: table`
+
+	response headers, format as `{singlekey = "value", multikey = {"value1", "value2"}}`
+
+* `cookies: table`
+
+	list of cookies.
+
+* `error: string`
+
+	error during request, must check this to make sure http request fully complete.
+
+
+### lfs
+
+[LuaFileSystem](https://keplerproject.github.io/luafilesystem/manual.html#reference)
+
+### lpeg
+[LPeg](http://www.inf.puc-rio.br/~roberto/lpeg/)
+
+### md5
+
+```lua
+
+local md5 = require "md5"
+local ctx = md5.new()
+ctx:update(xxx)
+print(ctx:digest()) -- ctx:digest(true) will return binary data
+
+```
+
+### registry
+
+```lua
+registry.getService("service name")
+```
+
+### string
+
+```lua
+string.rijndael_128_cbc(str, isEncrypt, key, iv)
+string.rijndael_256_cbc(str, isEncrypt, key, iv)
+string.des(str, isEncrypt, key)
+
+-- count string space for LabelWidget
+string.space(str, fontSize, widthLimit, model, lineSpace, charSpace)
+```
+
+### tcpd
+
+* `conn = tcpd.connect(arg:table)`
+
+connect to remote tcp server.
+
+---------
+keys in the `arg`:
+
+* `host: string`
+
+	host to connect.
+
+* `port: integer`
+
+	port to connect.
+
+* `onread: function?`
+
+	stream input callback, arg1 => buffer_in:string
+
+* `onsendready: function?`
+
+	callback on ready to send new data (stream output complete), no arg
+
+* `ondisconnected: function?`
+
+	ondisconnected callback, arg1 => reason:string
+
+* `onconnected: function?`
+
+	onconnected callback
+
+* `ssl: boolean?`
+
+	whether ssl connection, default false.
+
+* `ssl_host: string?`
+
+	tls extension host name for ssl handshake, use `host` if this field is not set.
+
+* `cainfo: string?`
+
+	file path to cacert.pem
+
+* `capath: string?`
+
+	directory path of cacert.pem
+
+* `ssl_verifyhost: integer?`
+
+	verify server certificate's host. 1 verify, 0 ignore.
+
+* `ssl_verifypeer: integer?`
+
+	verify ssl certificate, 1 verify, 0 ignore.
+
+* `pkcs12.path: string?`
+
+	path to pkcs12 file, option available only if cainfo/capath has not been set. This option can be used to connect to apple's APNS server.
+
+* `pkcs12.password: string?`
+
+	password of pkcs12 file.
+
+* `read_timeout: number?`
+
+	connection's read timeout.
+
+* `write_timeout: number?`
+
+	connection's write timeout.
+
+---------
+`conn` apis:
+
+### `send(buf)`
+
+send out data buf.
+
+### `close()`
+
+close connection, ondisconnected may not callback.
+
+### `reconnect()`
+
+reconnect to the destination.
+
+### `pause_read()`
+
+pause `onread` callback.
+
+### `resume_read()`
+
+resume `onread` callback.
+
+---------
+### `serv = tcpd.bind(arg:table)`
+
+listening on tcp socket.
+
+---------
+`serv` apis
+
+* `close()` shutdown the server.
+
+---------
+keys in the `arg`:
+
+* `host: string?`
+
+	bind host, if not set, bind to "0.0.0.0"
+
+* `port: integer?`
+
+	port to listen, if not set, use random port which is available.
+
+* `onaccept: function`
+
+	new client connection callback, arg1 => [accept_connection](#acceptconnection)
+
+* `ssl: boolean?`
+
+	listening as ssl server, default false.
+
+* `cert: string?`
+
+	ssl cert file path.
+
+* `key: string?`
+
+	ssl key file path.
+
+* `onsslhostname: function`
+
+	ssl hostname (servername extension) callback, arg1 => hostname:string
+
+* `send_buffer_size: integer?`
+
+	client connection send buffer size.
+
+
+* `receive_buffer_size: integer?`
+
+	client connection receive buffer size.
+
+
+#### AcceptConnection
+
+* `send(buf)`
+send data buf to client.
+
+* `close()`
+close client connection.
+
+* `flush()`
+flush data to client.
+
+* `remoteinfo()`
+return the client connection info table.
+`{ip = "1.2.3.4", port = 1234}`
+
+* `pause_read()`
+
+pause `onread` (from bind) callback.
+
+* `resume_read()`
+
+resume `onread` (from bind) callback.
+
+* `bind(arg:table)`
+working on single connection.
+
+---------
+keys in the `arg`:
+
+* `onread: function?`
+
+	on read message from client callback, arg1 => databuf:string
+
+* `onsendready: function?`
+
+	on send ready callback, no arg.
+
+* `ondisconnected`
+
+	on client disconnected callback, arg1 => reason:string
+
+### udpd
+
+* `conn = udpd.new(arg:table)`
+create a udp socket.
+
+* `dest = udpd.make_dest(host:string, port:number)`
+create a dest:[UDP_AddrInfo](#udp_addr_info), can be used in `conn:send`, this api is non-blocking.
+
+---------
+keys in the `arg`:
+
+* `onread: function?`
+
+	callback on receive data. arg1 => data:string, arg2 => [UDP_AddrInfo](#udp_addr_info)
+
+* `onsendready: function?`
+
+	callback on ready to send new data after `send_req`. no arg.
+
+* `host: string?`
+
+	host to send message to.
+
+* `port: integer?`
+
+	port to send message to.
+
+* `bind_host: string?`
+
+	local bind host, default "0.0.0.0"
+
+* `bind_port: integer`
+
+	local bind port
+
+---------
+conn apis:
+* `send(buf, addr?)`
+send out data buf, if addr:[UDP_AddrInfo](#udp_addr_info) specified, use it as the destination address, otherwise, use the host:port when create this udp object.
+
+* `send_req()`
+request to send data, when output buffer is available, onsendready will be called.
+
+* `getPort()`
+get the udp local binding port.
+
+* `close()`
+cleanup udp reference.
+
+#### UDP_ADDR_INFO
+
+* `getHost():string`
+get the income message host.
+
+* `getPort():integer`
+get the income message port.
+
+### utd
+
+* `serv, port = utd.bind(arg:table)`
+create a simple http server.
+
+---------
+keys in the `arg`:
+
+* `host: string?`
+
+http service listening host, default "0.0.0.0"
+
+* `port: integer?`
+
+http service listening port, leave empty for random port that available.
+
+* `onService`
+
+on request callback, arg1 => [http_request](#http_request), arg2 => [http_response](#http_response)
+
+#### HTTP_REQUEST
+
+properties:
+* `path:string`
+
+* `query:string`
+
+* `method:string`
+
+* `params:table`
+
+* `body:string`
+income body.
+
+* `headers:table`
+format as `{singlekey = "value", multikey = {"value1", "value2"}}`
+
+* `remoteip:string`
+
+* `remoteport:integer`
+
+apis:
+* `available():integer`
+return available input stream length to read.
+
+* `read()`
+read data buf from input stream, return nil if no data.
+
+#### HTTP_RESPONSE
+
+apis:
+* `addheader(k:string, v:string)`
+add one response header.
+
+* `reply(status_code:integer, msg:string, bodydata:string?)`
+response to client.
+
+* `reply_start(status_code:integer, msg:string)`
+
+* `reply_chunk(data:string)`
+
+* `reply_end()`
+
+### zlib
+[lzlib](https://github.com/LuaDist/lzlib)
+
 ## Class
+
 ### SizeType
 
 * string
@@ -1134,6 +1656,57 @@ local img = imageservice:load(filePath)
 	* "fitHeight"
 	* "repeat"
 	* "clip([0-9]+,[0-9]+(,[0-9]+,[0-9]+)?)"
+
+### LuaImage
+
+* APIs
+
+| Property      | Parameters    | Return Type   | Description   |
+| ------------- | ------------- | ------------- | ------------- |
+| saveIntoPhotoLibrary | oncomplete:function? | void | save image into device photo library |
+| save | path:string, format:string | void | save image into `path` with spec `format`, `format` can be jpeg or png |
+| getSize | void | width:number, height:number | get the size of this image. |
+
+### LuaLocation
+
+* APIs
+
+| Property      | Parameters    | Return Type   | Description   |
+| ------------- | ------------- | ------------- | ------------- |
+| distanceFromLocation | location:[LuaLocation](#lualocation) | meters:number | Returns the lateral distance between two locations in meters. |
+| getCoordinate | void | latitude:number, longitude:number | Returns the coordinate of the current location. |
+
+* Properties
+
+| Property      | Type          | Description   |
+| ------------- | ------------- | ------------- |
+| timestamp | number | the timestamp when this location was determined. |
+| altitude | number | Returns the altitude of the location. Can be positive (above sea level) or negative (below sea level). |
+| course | number | Returns the course of the location in degrees true North. Negative if course is invalid. 0.0 - 359.9 degrees, 0 being true North |
+| speed | number | the speed of the location in m/s. Negative if speed is invalid. |
+
+### LuaHeading
+
+* Properties
+
+| Property      | Type          | Description   |
+| ------------- | ------------- | ------------- |
+| timestamp | number | Returns a timestamp for when the magnetic heading was determined. |
+| magneticHeading | number | Represents the direction in degrees, where 0 degrees is magnetic North. The direction is referenced from the top of the device regardless of device orientation as well as the orientation of the user interface. |
+| trueHeading | number | Represents the direction in degrees, where 0 degrees is true North. The direction is referenced from the top of the device regardless of device orientation as well as the orientation of the user interface. |
+| headingAccuracy | number | Represents the maximum deviation of where the magnetic heading may differ from the actual geomagnetic heading in degrees. A negative value indicates an invalid heading. |
+| x | number | Returns a raw value for the geomagnetism measured in the x-axis. |
+| y | number | Returns a raw value for the geomagnetism measured in the y-axis. |
+| z | number | Returns a raw value for the geomagnetism measured in the z-axis. |
+
+### LuaFunctionWatcher
+
+* APIs
+
+| Property      | Parameters    | Return Type   | Description   |
+| ------------- | ------------- | ------------- | ------------- |
+| clear | void | void | invalid this watcher. |
+
 
 # Best Practice
 
