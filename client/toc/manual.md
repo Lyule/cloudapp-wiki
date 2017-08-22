@@ -91,7 +91,7 @@ This the abstract class of all widget.
 ```
 
 * lua sample
-<!-- [FILE] sample/scripts/widget/button.lua -->
+<!-- [FILE] sample/client/default/scripts/widget/button.lua -->
 ```lua
 widgetid.onclick = function()
     alert("Click on Button")
@@ -99,7 +99,7 @@ end
 ```
 
 * page demo
-<!-- [FILE] sample/button.xml -->
+<!-- [FILE] sample/client/default/button.xml -->
 ```xml
 <?xml version="1.0" encoding="UTF-8"?>
 <manifest>
@@ -145,6 +145,38 @@ end
 
 ```xml
 <label text="hello world." align="left" height="44"/>
+```
+
+* lua sample
+
+<!-- [FILE] sample/client/default/scripts/widget/label.lua -->
+
+```lua
+local ui = require "framework.ui"
+
+local lb = ui.label{html = true, wrap = true}
+lb.text = [[
+<p style="line-height:100%;letter-spacing:10px;font-size:20px">
+UTF-8 is an ASCII-preserving encoding method for Unicode (ISO 10646), the Universal Character Set (UCS).
+</p>
+]]
+
+local view = ui.view{backgroundColor = "red", height = 50}
+view:addChild(lb)
+
+demoview:addChild(view)
+
+local lb = ui.label{wrap = true, backgroundColor = "blue", fontSize=20}
+lb.text = [[UTF-8 is an ASCII-preserving encoding method for Unicode (ISO 10646), the Universal Character Set (UCS).]]
+
+local view = ui.view{backgroundColor = "red", height = 10, width = 100}
+view:addChild(lb)
+
+demoview:addChild(view)
+
+local w,h = string.space([[UTF-8 is an ASCII-preserving encoding method for Unicode (ISO 10646), the Universal Character Set (UCS).]], 20, 100)
+
+demoview:addChild(ui.view{backgroundColor = "yellow", backgroundAlpha = 0.5, width = w, height = h})
 ```
 
 ### Image Widget
@@ -332,6 +364,26 @@ end
 </hbox>
 ```
 
+* lua sample
+
+<!-- [FILE] sample/client/default/scripts/widget/hbox.lua -->
+
+```lua
+local ui = require "framework.ui"
+
+local v = ui.hbox{height = "50%", height = "50%"}
+v:addChild(ui.view{marginLeft = "5%", marginRight = "5%", width = "20%"})
+v:addChild(ui.view{marginLeft = "10%", marginRight = "10%", width = "30%"})
+demoview:addChild(v)
+
+
+local v = ui.hbox{height = "50%", marginTop = "50%", layout="absolute"}
+v:addChild(ui.view{marginLeft = "5%", marginRight = "5%", width = "20%"})
+v:addChild(ui.view{marginLeft = "10%", marginRight = "10%", width = "30%"})
+v:addChild(ui.view{width = "10%", backgroundColor = "red"})
+demoview:addChild(v)
+```
+
 ### VBox Widget
 
 * Properties
@@ -356,6 +408,26 @@ end
     <label text="1"/>
     <label text="2"/>
 </hbox>
+```
+
+* lua sample
+
+<!-- [FILE] sample/client/default/scripts/widget/vbox.lua -->
+
+```lua
+local ui = require "framework.ui"
+
+local v = ui.vbox{width = "50%"}
+v:addChild(ui.view{marginTop = "5%", marginBottom = "5%", height = "20%"})
+v:addChild(ui.view{marginTop = "10%", marginBottom = "10%", height = "30%"})
+demoview:addChild(v)
+
+
+local v = ui.vbox{width = "50%", marginLeft = "50%", layout="absolute"}
+v:addChild(ui.view{marginTop = "5%", marginBottom = "5%", height = "20%"})
+v:addChild(ui.view{marginTop = "10%", marginBottom = "10%", height = "30%"})
+v:addChild(ui.view{height = "10%", backgroundColor = "red"})
+demoview:addChild(v)
 ```
 
 ### Webview Widget
@@ -491,7 +563,7 @@ end
 
 * lua sample
 
-<!-- [FILE] sample/scripts/widget/list.lua -->
+<!-- [FILE] sample/client/default/scripts/widget/list.lua -->
 
 ```lua
 
@@ -693,6 +765,36 @@ local w,h = widgetid:getContentSize()
 local x,y = widgetid:getContentOffset()
 ```
 
+<!-- [FILE] sample/client/default/scripts/widget/scrollview.lua -->
+
+```lua
+local base = require "framework.base"
+local ui = require "framework.ui"
+
+local v = ui.view{backgroundColor = "red"}
+v:addChild(ui.label{id = "dragDownLabel", marginBottom = 0, height = 20})
+
+local sv = demoview:addChild(ui.scrollview())
+sv:addChild(ui.view{backgroundColor = "blue"})
+
+sv.dragDownLayout = v -- 下拉区域view model,内部元素建议从下往上布局(因为下拉首先看到的是该view下部元素)
+sv.dragDownMinMovement = 60 -- 最小下拉距离
+
+sv.onDragDownStateChanged = function(sv, match) -- 下拉状态改变触发事件，match 表示是否符合下拉阈值
+	dragDownLabel.text = string.format("onDragDownStateChanged %s", match and "1" or "0")
+	print(string.format("onDragDownStateChanged %s", match and "1" or "0"))
+end
+
+sv.onDragDownAction = function(sv, match) -- 下拉松开触发事件，match 表示是否符合下拉阈值
+	dragDownLabel.text = string.format("onDragDownAction %s", match and "1" or "0")
+	print(string.format("onDragDownAction %s", match and "1" or "0"))
+
+	if match then
+		sleep(2)
+		sv:closeDragDown() -- 刷新完成后，关闭下拉界面
+	end
+end
+```
 
 ## Service
 
@@ -936,7 +1038,7 @@ ilbc:play("data:///record.ilbc")
 
 * lua samples
 
-<!-- [FILE] sample/scripts/service/zbar.lua -->
+<!-- [FILE] sample/client/default/scripts/service/zbar.lua -->
 
 ```lua
 local zbs = registry.getService("zbar")
@@ -1018,45 +1120,60 @@ same as [zbar serice](#zbar)
 
 * lua sample
 
+<!-- [FILE] sample/client/default/scripts/service/contacts.lua -->
+
 ```lua
+local base = require "framework.base"
+local ui = require "framework.ui"
+local json = require "cjson"
+
 local contactsService = registry.getService("contacts")
+
 local watcher = contactsService:addChangeWatcher(function(...)
-	print(...)
+    print(...)
 end)
+
 contactsService:load(function(cs, success)
-	print(cs, success)
-	for i,v in ipairs(cs.all) do
-		for i2,v2 in pairs(v) do
-			print(i2,v2)
-		end
-		print(i,v.fullName, json.encode(v.phones))
-	end
+    print(cs, success)
+    for i,v in ipairs(cs.all) do
+        for i2,v2 in pairs(v) do
+            print(i2,v2)
+        end
+        print(i,v.fullName, json.encode(v.phones))
+    end
+
+    -- test load again inside load callback
+    contactsService:load(function(cs, success)
+	    print("2", cs, success)
+	    for i,v in ipairs(cs.all) do
+	        for i2,v2 in pairs(v) do
+	            print("2", i2,v2)
+	        end
+	        print("2",i,v.fullName, json.encode(v.phones))
+	    end
+
+	    
+	end)
 end)
 ```
 
 ### alipay
 
-```lua
-local alipay = registry.getService("alipay")
+* lua sample
 
-local signStr = "xxx"
-alipay:pay(signStr, function(ret)
-    for k,v in pairs(ret) do
-        print(k,v)
-    end
-end)
-```
+<!-- [FILE] sample/client/default/scripts/service/alipay.lua -->
 
 ```lua
 -- If app has been killed before relaunch by alipay, you can get result from globalsandbox by key `$alipay_result`
 local ret = sandbox:getGlobalSandbox():get("$alipay_result")
 if ret then
-    -- clear result
+	-- clear result
     sandbox:getGlobalSandbox():put("$alipay_result", nil)
 
-    for k,v in pairs(ret) do
-        print(k,v)
-    end
+	alert(ret.memo)
+else
+	local alipay = registry.getService("alipay")
+	alipay:pay("test", function(res) alert(ret.memo) end)
 end
 ```
 
@@ -1711,3 +1828,348 @@ response to client.
 # Best Practice
 
 # Tutorial
+
+## Generate Sample Project
+
+You can generate sample project from this manual.
+
+* Save the following file as `make.lua` under the same folder of `manual.md`
+
+```lua
+local f = io.open("manual.md", "rb")
+local data = f:read("*all")
+f:close()
+
+local offset = 0
+
+local function trim(s)
+  return (s:gsub("^%s*(.-)%s*$", "%1"))
+end
+
+local function split(str, pat)
+    local t = {}
+    if str then
+        local fpat = "(.-)" .. pat
+        local last_end = 1
+        local s, e, cap = str:find(fpat, 1)
+        while s do
+            if s ~= 1 or cap ~= "" then
+                table.insert(t, cap)
+            end
+            last_end = e + 1
+            s, e, cap = str:find(fpat, last_end)
+        end
+        if last_end <= #str then
+            cap = str:sub(last_end)
+            table.insert(t, cap)
+        end
+    end
+    return t
+end
+
+while true do
+    local st,ed = string.find(data, "<!--" .. " [FILE]", offset, true)
+    if st and ed then
+        offset = ed
+
+        local st2,ed2 = string.find(data, "-->", offset, true)
+        local filepath = trim(string.sub(data, ed + 1, st2 - 1))
+        local parts = split(filepath, "/")
+        local dir = table.concat(parts, "/", 1, #parts - 1)
+        os.execute("mkdir -p " .. dir)
+
+        local st3,_ = string.find(data, "```", ed2, true)
+        local st4,ed4 = string.find(data, "\n", st3, true)
+
+        local st5,ed5 = string.find(data, "```", ed4, true)
+
+        local body = trim(string.sub(data, ed4 + 1, st5 - 1))
+
+        local f = io.open(filepath, "wb")
+        f:write(body)
+        f:close()
+    else
+        break
+    end
+end
+```
+* execute the following command on the folder.
+
+```bash
+lua-5.3 make.lua
+```
+
+# Additions
+
+* manifest.xml
+
+<!-- [FILE] sample/manifest.xml -->
+
+```xml
+<?xml version="1.0" encoding="UTF-8"?>
+<manifest>
+	<mobilityapp category="user" id="sample" version="1.0.0">
+		<name>@{app.name}</name>
+		<description>@{app.description}</description>
+		<vendor>@{app.vendor}</vendor>
+
+		<imageLazyLoading>true</imageLazyLoading>
+
+		<dependency>
+			<libraries>
+				<library id="framework" />
+				<library id="CommonService" />
+			</libraries>
+		</dependency> 
+		<metadata> 
+			 <data key="section1" schema="layout">
+			    <!--Set order in section1 -->
+			    <attribute name="order">1</attribute>
+			    <!--Set icon image -->
+			    <view margin="25 auto auto auto" width="38" height="38" backgroundScale="fill" backgroundImage="app://sample/images/icon.png"/>
+			    <!--Set module title label -->
+			    <label margin="77 0 0 0" color="#1f1f1f" height="15" text="Sample" fontSize="12" align="center"/>
+			    <button onclick="installAndPushApp('sample')"/>
+			</data>
+		</metadata>
+		<security login="optional" roles="*" />
+
+		<skins>
+			<skin smallestWidth="320" skin="default" />
+			<skin smallestWidth="640" skin="sw640dp" />
+			<skin smallestWidth="1080" skin="sw1080dp" extends="sw640dp"/>
+			<skin smallestWidth="320" retina="true" os="ios"
+				skin="iphone-xhdpi-sw320dp" />
+		</skins>
+		<pages index="index">
+			<page>index.xml</page>
+		</pages>
+	</mobilityapp>
+</manifest>
+```
+
+* en.loc
+
+<!-- [FILE] sample/client/default/locale/en.loc -->
+
+```ini
+# Mobility App
+app.name=Sample
+app.description=Sample
+
+app.vendor=MK
+
+test.key=Test
+button.label.back=GoBack
+format.string=Welcome, %s
+```
+
+* zh.loc
+
+<!-- [FILE] sample/client/default/locale/zh.loc -->
+
+```ini
+# Mobility App
+app.name=范例
+app.description=范例
+
+app.vendor=MK
+
+test.key=测试
+button.label.back=返回
+format.string=%s, 欢迎您
+```
+
+* index.xml.lua
+
+<!-- [FILE] sample/client/default/index.xml.lua -->
+
+```xml
+local ui = require "framework.ui"
+local json = require "cjson"
+local base = require "framework.base"
+local apps = require "framework.apps"
+
+local stop = false
+
+local function goBack()
+	stop = true
+
+	apps.popPage()
+end
+
+function onNavBack()
+	goBack()
+	return true
+end
+
+function onCreated(ctx)
+	-- if ctx then
+	-- 	async(alert, json.encode(ctx))
+	-- end
+
+	_root.backgroundColor = "white"
+	backBtn.onclick = goBack
+
+	closeBtn.onclick = function ()
+		demopanel.hidden = true
+	end
+
+	runBtn.onclick = function()
+		loadstring(codearea.text, "", "t", _ENV)()
+	end
+
+	local items = {}
+
+	local rowidx = 0
+
+	local path = _S.tmpPath
+
+	if not path then
+		path = base.resolveFile("scripts")
+	else
+		_S.tmpPath = nil
+	end
+
+	for file in lfs.dir(path) do
+		if file ~= "." and file ~= ".." then
+			local fpath = path..'/'..file
+			local attr = lfs.attributes(fpath)
+			if attr.mode == "directory" then
+				local idx = rowidx
+				local data
+				data = {
+					count = 0,
+					title = {
+						text = string.format("<font color='blue' style='font-size:12pt'>%s</font> <font style='font-size:9pt' color='gray'>=></font>", file)
+					},
+					btn = {
+						onclick = function()
+							data.count = data.count + 1
+							data.title.text = string.format("<font color='blue' style='font-size:12pt'>%s</font> (%d) <font style='font-size:9pt' color='gray'>=></font>", file, data.count)
+							list:reload(0,idx)
+							
+							_S.tmpPath = fpath
+							apps.pushPage({
+								pageId = "index",
+								frompath = path
+							})
+						end
+					}
+				}
+
+				table.insert(items, data)
+				rowidx = rowidx + 1
+			end
+		end
+	end
+
+	for file in lfs.dir(path) do
+		if file ~= "." and file ~= ".." then
+			local fpath = path..'/'..file
+			local attr = lfs.attributes(fpath)
+			if attr.mode ~= "directory" and string.find(file, ".lua", 1, true) then
+				local f = io.open(fpath)
+				local script = f:read("*all")
+				f:close()
+
+				local idx = rowidx
+				local data
+				data = {
+					count = 0,
+					title = {
+						text = file
+					},
+					btn = {
+						onclick = function()
+							data.count = data.count + 1
+							data.title.text = string.format("%s (%d)", file, data.count)
+							list:reload(0,idx)
+							demopanel.hidden = false
+							demoview:removeAllChildren()
+							
+							codearea.text = script
+						end
+					}
+				}
+
+				table.insert(items, data)
+				rowidx = rowidx + 1
+			end
+		end
+	end
+
+	-- list.dataProvider = {items = items}
+
+	list.__row_count = #(items)
+	list.__row_height = 40
+
+	list.__row_data = function(list, section, row)
+		return items[row + 1]
+	end
+
+	list.__section_count = 1
+
+	list:reload()
+end
+```
+
+* index.xml
+
+<!-- [FILE] sample/client/default/index.xml -->
+
+```xml
+<?xml version="1.0" encoding="UTF-8"?>
+<manifest>
+	<page>
+		<layout>
+			<button label="@{button.label.back}" id="backBtn" height="44"/>
+			<list marginTop="44" id="list">
+				<template>
+					<body height="40">
+						<label data="title" html="true"/>
+						<button data="btn" />
+					</body>
+				</template>
+			</list>
+
+			<scrollview id="demopanel" hidden="true" backgroundColor="white">
+				<button label="关闭" id="closeBtn" height="44" marginRight="50%"/>
+				<button label="运行" id="runBtn" height="44" marginLeft="50%"/>
+				<vbox marginTop="44" >
+					<view id="demoview" overflow="hidden" />
+					<textarea id="codearea" height="5" backgroundColor="blue" backgroundAlpha="0.5"/>
+					<textarea editable="false" id="console" height="5" />
+				</vbox>
+			</scrollview>
+		</layout>
+	</page>
+</manifest>
+```
+
+* skin.spec
+
+<!-- [FILE] sample/client/default/skin.spec -->
+
+```ini
+scale=1
+```
+
+<!-- [FILE] sample/client/sw640dp/skin.spec -->
+
+```ini
+scale=2
+```
+
+<!-- [FILE] sample/client/sw1080dp/skin.spec -->
+
+```ini
+scale=3.4
+```
+
+<!-- [FILE] sample/client/iphone-xhdpi-sw320dp/skin.spec -->
+
+```ini
+scale=1
+skinname=iphone-xhdpi-sw320dp
+```
