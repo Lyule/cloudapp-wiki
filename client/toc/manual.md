@@ -371,15 +371,15 @@ demoview:addChild(ui.view{backgroundColor = "yellow", backgroundAlpha = 0.5, wid
 ```lua
 local ui = require "framework.ui"
 
-local v = ui.hbox{height = "50%", height = "50%"}
-v:addChild(ui.view{marginLeft = "5%", marginRight = "5%", width = "20%"})
-v:addChild(ui.view{marginLeft = "10%", marginRight = "10%", width = "30%"})
+local v = ui.hbox{height = "50%", width="100%", borderWidth=1, borderColor="red"}
+v:addChild(ui.view{marginLeft = "5%", marginRight = "5%", width = "20%", borderWidth=1, borderColor="green"})
+v:addChild(ui.view{marginLeft = "10%", marginRight = "10%", width = "30%", borderWidth=1, borderColor="blue"})
 demoview:addChild(v)
 
 
-local v = ui.hbox{height = "50%", marginTop = "50%", layout="absolute"}
-v:addChild(ui.view{marginLeft = "5%", marginRight = "5%", width = "20%"})
-v:addChild(ui.view{marginLeft = "10%", marginRight = "10%", width = "30%"})
+local v = ui.hbox{marginTop = "50%", width="100%", layout="absolute", borderWidth=1, borderColor="red"}
+v:addChild(ui.view{marginLeft = "5%", marginRight = "5%", width = "20%", borderWidth=1, borderColor="green"})
+v:addChild(ui.view{marginLeft = "10%", marginRight = "10%", width = "30%", borderWidth=1, borderColor="blue"})
 v:addChild(ui.view{width = "10%", backgroundColor = "red"})
 demoview:addChild(v)
 ```
@@ -457,6 +457,7 @@ demoview:addChild(v)
 ```
 
 * xml sample
+
 ```xml
 <webview src="http://www.example.com" height="100" />
 ```
@@ -1373,6 +1374,101 @@ keys in the responsetable:
 ### lpeg
 [LPeg](http://www.inf.puc-rio.br/~roberto/lpeg/)
 
+### freeimage
+
+* lua sample
+Gray Image
+
+<!-- [FILE] sample/client/default/scripts/freeimage/demo.lua -->
+
+```lua
+local fi = require "freeimage"
+
+print(fi.getInfo())
+
+local function processGrayImage(dib)
+	print("processGrayImage")
+	for i=1,dib:getWidth() do
+		for j=1,dib:getHeight() do
+			local color = dib:getPixelColor(i - 1, j - 1)
+			local r = color & 0xff
+			local g = (color & 0xff00) >> 8
+			local b = (color & 0xff0000) >> 16
+			local a = (color & 0xff000000) >> 24
+			local gray = math.floor(r * 0.299 + g * 0.587 + b * 0.114)
+			color = (gray << 8) + (gray << 16) + (0xff << 24) + gray
+			dib:setPixelColor(i - 1, j - 1, color)
+		end
+	end
+end
+
+local dib = fi.bitmap()
+
+assert(dib:load("png", sandbox:resolveFile("images/image.png")))
+
+processGrayImage(dib)
+dib:save("png", sandbox:resolveFile("data:///grey.png"))
+```
+
+```lua
+local fi = require "freeimage"
+local ui = require "framework.ui"
+
+print(fi.getInfo())
+
+local images = {}
+
+local imga = fi.bitmap()
+assert(imga:load("png", sandbox:resolveFile("images/a.png")))
+table.insert(images, imga)
+
+local width = imga:getWidth()
+local height = imga:getHeight()
+local bpp = imga:getBPP()
+
+local imgb = fi.bitmap()
+assert(imgb:load("png", sandbox:resolveFile("images/b.png")))
+table.insert(images, imgb)
+
+
+local body = fi.bitmap()
+body:allocate("bitmap", width, height * #(images), 24, 0, 0, 0)
+
+for i,v in ipairs(images) do
+    local img = fi.bitmap()
+    img:convertTo24Bits(v)
+    body:paste(img, 0, (i - 1) * height, 0xFF)
+end
+
+local gifbody = fi.bitmap()
+gifbody:colorQuantize(body, "n", 255)
+gifbody:setTransparentIndex(255)
+
+local output = fi.open_multi("gif", sandbox:resolveFile("data:///body.gif"), 1, 0, 0)
+
+for i=1,#(images) do
+    local dest = fi.bitmap()
+    dest:copy(gifbody, 0, (i - 1) * height, width, i * height)
+
+    local img = images[i]
+
+    for i=1,img:getWidth() do
+        for j=1,img:getHeight() do
+            local color = img:getPixelColor(i - 1, j - 1)
+            if color & 0xff000000 == 0 then
+                dest:setPixelIndex(i - 1, j - 1, 0xFF)
+            end
+        end
+    end
+
+    output:AppendPage(dest)
+end
+
+output:Close()
+
+demoview:addChild(ui.image{src = "data:///body.gif", width = 200, height = 200, backgroundColor = "red"})
+
+```
 ### md5
 
 ```lua
