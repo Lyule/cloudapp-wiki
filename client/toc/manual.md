@@ -1,6 +1,75 @@
 Reference Manual
 ================
 
+- [Reference Manual](#reference-manual)
+- [API](#api)
+  * [Widget](#widget)
+    + [UI Base Widget](#ui-base-widget)
+    + [Button Widget](#button-widget)
+    + [Label Widget](#label-widget)
+    + [Image Widget](#image-widget)
+    + [Textfield Widget](#textfield-widget)
+    + [Textarea Widget](#textarea-widget)
+    + [View Widget](#view-widget)
+    + [HBox Widget](#hbox-widget)
+    + [VBox Widget](#vbox-widget)
+    + [Webview Widget](#webview-widget)
+    + [Video Widget](#video-widget)
+    + [List Widget](#list-widget)
+    + [Scrollview Widget](#scrollview-widget)
+  * [Service](#service)
+    + [device](#device)
+      - [DiskInfo](#diskinfo)
+      - [SMSTable](#smstable)
+    + [email](#email)
+    + [appmanagement](#appmanagement)
+    + [locale](#locale)
+    + [mp3](#mp3)
+    + [location](#location)
+    + [ilbc](#ilbc)
+    + [zbar](#zbar)
+    + [barcode](#barcode)
+    + [contacts](#contacts)
+    + [alipay](#alipay)
+    + [image](#image)
+    + [APIs](#apis)
+    + [Samples](#samples)
+  * [C Function](#c-function)
+    + [base64](#base64)
+    + [cjson](#cjson)
+    + [openssl](#openssl)
+    + [cv](#cv)
+    + [http](#http)
+    + [responsetable](#responsetable)
+    + [lfs](#lfs)
+    + [lpeg](#lpeg)
+    + [freeimage](#freeimage)
+    + [md5](#md5)
+    + [registry](#registry)
+    + [string](#string)
+    + [tcpd](#tcpd)
+      - [AcceptConnection](#acceptconnection)
+    + [udpd](#udpd)
+      - [UDP_ADDR_INFO](#udp_addr_info)
+    + [utd](#utd)
+      - [HTTP_REQUEST](#http_request)
+      - [HTTP_RESPONSE](#http_response)
+    + [zlib](#zlib)
+  * [Class](#class)
+    + [SizeType](#sizetype)
+    + [ColorType](#colortype)
+    + [ImageType](#imagetype)
+    + [GradientType](#gradienttype)
+    + [ScaleType](#scaletype)
+    + [LuaImage](#luaimage)
+    + [LuaLocation](#lualocation)
+    + [LuaHeading](#luaheading)
+    + [LuaFunctionWatcher](#luafunctionwatcher)
+- [Best Practice](#best-practice)
+- [Tutorial](#tutorial)
+  * [Generate Sample Project](#generate-sample-project)
+- [Additions](#additions)
+
 # API
 
 ## Widget
@@ -1409,6 +1478,7 @@ assert(dib:load("png", sandbox:resolveFile("images/image.png")))
 processGrayImage(dib)
 dib:save("png", sandbox:resolveFile("data:///grey.png"))
 ```
+<!-- [FILE] sample/client/default/scripts/freeimage/gif.lua -->
 
 ```lua
 local fi = require "freeimage"
@@ -1573,28 +1643,28 @@ keys in the `arg`:
 ---------
 `conn` apis:
 
-### `send(buf)`
+* `send(buf)`
 
 send out data buf.
 
-### `close()`
+* `close()`
 
 close connection, ondisconnected may not callback.
 
-### `reconnect()`
+* `reconnect()`
 
 reconnect to the destination.
 
-### `pause_read()`
+* `pause_read()`
 
 pause `onread` callback.
 
-### `resume_read()`
+* `resume_read()`
 
 resume `onread` callback.
 
 ---------
-### `serv = tcpd.bind(arg:table)`
+* `serv = tcpd.bind(arg:table)`
 
 listening on tcp socket.
 
