@@ -1,2 +1,5 @@
 _book
 client/toc/sample/*
+client/toc/node_modules
+client/toc/package-lock.json
+client/toc/package.json
