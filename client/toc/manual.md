@@ -18,6 +18,7 @@ Reference Manual
 		+ [Scrollview Widget](#scrollview-widget)
 	* [Service](#service)
 		+ [device](#device) 
+			- [PostScript](#postscript)
 			- [DiskInfo](#diskinfo)
 			- [SMSTable](#smstable)
 		+ [email](#email)
@@ -885,7 +886,7 @@ end
 | hasApp | appidentifier:string | boolean | check whether app exist, scheme in ios or id in android. |
 | openApp | appidentifier:string | boolean | open app |
 | getUUID | void | string | get device uuid | get device uuid, it will change if user erase the system in ios. |
-| loadFont | fontPath:string, fontname:string | void | load customize font. |
+| loadFont | fontPath:string, fontname:string | void | load customize font, `fontname` must exactly match the [PostScript](#postscript) name of this font. |
 | playSoundFile | path:string | void | play a short sound file. |
 | clearSoundCache | void | void | ios only |
 | vibrate | void | void | vibrate the device |
@@ -908,6 +909,17 @@ end
 | ------------- | ------------- | ------------- |
 | StatusBarStyleDefault | StatusBarStyle | |
 | StatusBarStyleLightContent | StatusBarStyle | |
+
+#### PostScript
+
+* how to get PostScript name from font file
+
+```bash
+# for macosx with homebrew
+brew install lcdf-typetools
+
+otfinfo --info font.path
+```
 
 #### DiskInfo
 
