@@ -68,6 +68,8 @@ Reference Manual
 - [Best Practice](#best-practice)
 - [Tutorial](#tutorial)
 	* [Generate Sample Project](#generate-sample-project)
+- [Samples](#samples)
+	* [Switch Env](#switch-env)
 - [Additions](#additions)
 
 # API
@@ -2074,6 +2076,76 @@ end
 
 ```bash
 lua-5.3 make.lua
+```
+
+# Samples
+
+## Switch Env
+
+* env.lua
+
+<!-- [FILE] sample/client/default/scripts/env.lua -->
+
+```lua
+local ui = require "framework.ui"
+local storage = require "framework.storage"
+local utils = require "framework.utils"
+local apps = require "framework.apps"
+local base = require "framework.base"
+local user = require "framework.user"
+local cjson = require "cjson"
+
+local serverURL = storage.load("$serverURL", storage.SCOPE_GLOBAL) or ""
+
+local v = ui.vbox{}
+
+v:addChild(ui.button{
+    height = 44,
+    label = "Display Profile",
+    onclick = function()
+        local user = require "framework.user"
+        local cjson = require "cjson"
+        alert(cjson.encode(user.getProfile()))
+    end
+})
+
+-- if current user is employee, display the employee profile.
+if user.getProfile().isEmployee then
+    v:addChild(ui.button{
+        height = 44,
+        label = "Display Employee Profile",
+        onclick = function()
+            alert(cjson.encode(user.getProfile().employeeProfile))
+        end
+    })
+end
+
+v:addChild(ui.textfield{
+    text = serverURL,
+    height = 44,
+    id="textfield",
+    borderWidth=1,
+    borderColor="black",
+    placeholder="type server address here."
+})
+
+v:addChild(ui.button{
+    height = 44,
+    label = "Change",
+    onclick = function()
+        local url = textfield.text
+        url = url:trim()
+        if string.find(url, "/client/", 1, true) then
+            storage.save("$serverURL", textfield.text, storage.SCOPE_GLOBAL)
+            alert("quit")
+            os.exit()
+        else
+            alert("Please input correct server address, e.g. https://xxx.xxx.xxx/client/")
+        end
+    end
+})
+
+demoview:addChild(v)
 ```
 
 # Additions
