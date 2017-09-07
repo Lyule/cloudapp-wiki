@@ -32,8 +32,8 @@ Reference Manual
 		+ [contacts](#contacts)
 		+ [alipay](#alipay)
 		+ [image](#image)
-		+ [APIs](#apis)
-		+ [Samples](#samples)
+			- [APIs](#apis)
+			- [Samples](#samples)
 	* [C Function](#c-function)
 		+ [base64](#base64)
 		+ [cjson](#cjson)
@@ -66,6 +66,7 @@ Reference Manual
 		+ [LuaHeading](#luaheading)
 		+ [LuaFunctionWatcher](#luafunctionwatcher)
 - [Best Practice](#best-practice)
+	* [Internationalization(i18n)](#internationalization)
 - [Tutorial](#tutorial)
 	* [Generate Sample Project](#generate-sample-project)
 - [Samples](#samples)
@@ -1262,13 +1263,13 @@ end
 
 ### image
 
-### APIs
+#### APIs
 
 | Property      | Parameters    | Return Type   | Description   |
 | ------------- | ------------- | ------------- | ------------- |
 | load | filePath:string | [LuaImage](#luaimage) | load image file |
 
-### Samples
+#### Samples
 
 ```lua
 local imageservice = registry.getService("image")
@@ -2005,6 +2006,57 @@ response to client.
 
 
 # Best Practice
+
+## Internationalization
+
+### Where to place locale file
+
+You need to place all locale files under `client/default/locale` folder, with the real locale name as the file name.
+
+### How to change runtime locale
+
+locale will be used automatically, but you can change the preferred locale by the following script.
+
+```lua
+local storage = require "framework.storage"
+storage.save("preferredLanguage", "en", storage.SCOPE_GLOBAL)
+```
+
+### How to use locale in lua
+
+[Locale Service](#locale)
+
+### How to use locale in xml
+
+surround your locale key with `@{}`
+
+```xml
+<label text="@{locale.key}"/>
+```
+
+### How to pass locale information to api
+
+each api call by `resource.api` will contains a key named `_Culture` in the request header and the parameter field.
+
+e.g.
+
+```
+GET /test?access_token=xxx&_Culture=zh&format=json HTTP/1.1
+_Culture: zh
+
+```
+
+```
+POST /test?access_token=xxx&format=json HTTP/1.1
+Content-Type: application/json
+_Culture: zh
+Content-Length: xx
+
+{
+	"_Culture": "cn",
+	"xxx": "..."
+}
+```
 
 # Tutorial
 
