@@ -2053,7 +2053,7 @@ _Culture: zh
 Content-Length: xx
 
 {
-	"_Culture": "cn",
+	"_Culture": "zh",
 	"xxx": "..."
 }
 ```
