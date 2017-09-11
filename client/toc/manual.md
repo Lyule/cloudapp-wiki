@@ -512,6 +512,7 @@ demoview:addChild(v)
 | zoomable | boolean | whether user could zoom the webpage. |
 | opaque | boolean | the opaque of the webpage. |
 | busyhidden | boolean | whether display webview loading view. |
+| jit | boolean | if true, webview will use WKWebview in ios. |
 
 * APIs
 
