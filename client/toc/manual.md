@@ -44,7 +44,7 @@ Reference Manual
 		+ [lfs](#lfs)
 		+ [lpeg](#lpeg)
 		+ [freeimage](#freeimage)
-		+ [md5](#md5)
+		+ [md5/sha256](#md5)
 		+ [registry](#registry)
 		+ [string](#string)
 		+ [tcpd](#tcpd)
@@ -1554,13 +1554,42 @@ output:Close()
 demoview:addChild(ui.image{src = "data:///body.gif", width = 200, height = 200, backgroundColor = "red"})
 
 ```
-### md5
+### md5/sha256
+
+* hash string
 
 ```lua
-
 local md5 = require "md5"
 local ctx = md5.new()
 ctx:update(xxx)
+print(ctx:digest()) -- ctx:digest(true) will return binary data
+
+```
+
+* hash file
+
+```lua
+local sha256 = require "sha256"
+local ctx = sha256.new()
+
+local f = io.open("filepath", "rb")
+
+if f then
+	while true do
+		local buff = f:read(1024)
+		
+		if not buff then
+			break
+		end
+
+		ctx:update(buff)
+	end
+
+	f:close()
+else
+	error("file open failed")
+end
+
 print(ctx:digest()) -- ctx:digest(true) will return binary data
 
 ```
