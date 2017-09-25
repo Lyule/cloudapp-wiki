@@ -16,6 +16,7 @@ Reference Manual
 		+ [Video Widget](#video-widget)
 		+ [List Widget](#list-widget)
 		+ [Scrollview Widget](#scrollview-widget)
+		+ [Frame Widget](#frame-widget)
 	* [Service](#service)
 		+ [device](#device) 
 			- [PostScript](#postscript)
@@ -868,6 +869,27 @@ sv.onDragDownAction = function(sv, match) -- 下拉松开触发事件，match �
 		sv:closeDragDown() -- 刷新完成后，关闭下拉界面
 	end
 end
+```
+
+### Frame Widget
+
+Frame Widget is most likely iframe in HTML.
+
+* Properties
+
+| Property      | Type          | Description   |
+| ------------- | ------------- | ------------- |
+| appId | string | app to contain |
+| pageId? | string | optional, page to contain |
+
+* xml schema
+```xml
+<frame appId="xxx" pageId="xxx" width="xxx" />
+```
+
+* xml sample
+```xml
+<frame id="frame1" appId="demo" pageId="index" marignBottom="100" />
 ```
 
 ## Service
