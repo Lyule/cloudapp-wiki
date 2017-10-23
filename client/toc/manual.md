@@ -928,6 +928,7 @@ Frame Widget is most likely iframe in HTML.
 | flashlight | boolean | turn on or turn off the flashlight. |
 | wlan | boolean | check whether wlan is available, read only. |
 | statusBarHeight | number | get the statusBarHeight, read only |
+| bottomHeight | number | get the bottomHeight, start from iphone x, read only |
 
 * Constants
 
