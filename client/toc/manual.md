@@ -917,6 +917,7 @@ Frame Widget is most likely iframe in HTML.
 | playSoundFile | path:string | void | play a short sound file. |
 | clearSoundCache | void | void | ios only |
 | vibrate | void | void | vibrate the device |
+| checkPermission | string | boolean | parameters could be 'camera','audio' |
 
 * Properties
 
