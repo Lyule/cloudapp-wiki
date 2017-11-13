@@ -903,6 +903,7 @@ Frame Widget is most likely iframe in HTML.
 | getDiskInfos | void | [DiskInfoList](#diskinfo) | get disk infos |
 | sms | [SMSTable](#smstable) | boolean | launch system sms |
 | auth | msg:string, callback:LuaFunction | boolean | finger auth, ios only. |
+| hasAuth | void | boolean | check whether support auth, true for support. |
 | call | phonenumber:string | boolean | launch system phone call |
 | getPasteboardText | void | string | get string from pasteboard |
 | setPasteboardText | value:string | put string to pasteboard |
