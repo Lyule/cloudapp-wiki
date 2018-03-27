@@ -902,7 +902,7 @@ Frame Widget is most likely iframe in HTML.
 | ------------- | ------------- | ------------- | ------------- |
 | getDiskInfos | void | [DiskInfoList](#diskinfo) | get disk infos |
 | sms | [SMSTable](#smstable) | boolean | launch system sms |
-| auth | msg:string, callback:LuaFunction | boolean | finger auth, ios only. |
+| auth | msg:string, callback:LuaFunction | boolean | finger auth, if finger is supported, return true, callback(fingerPassed:boolean). |
 | hasAuth | void | boolean | check whether support auth, true for support. |
 | call | phonenumber:string | boolean | launch system phone call |
 | getPasteboardText | void | string | get string from pasteboard |
@@ -918,6 +918,14 @@ Frame Widget is most likely iframe in HTML.
 | clearSoundCache | void | void | ios only |
 | vibrate | void | void | vibrate the device |
 | checkPermission | string | boolean | parameters could be 'camera','audio' |
+| getLeftWidth | void | number | left width for safearea. |
+| getRightWidth | void | number | right width for safearea. |
+| getBottomHeight | void | number | bottom height for safearea. |
+| getStatusBarHeight | void | number | get the status bar height. |
+| getStatusBarHidden | void | boolean | get the status bar hidden status. |
+| setStatusBarHidden | boolean | void | set the status bar hidden status. |
+| getBadge | void | number | get the application icon's badge. |
+| setBadge | number | void | set the application icon's badge. |
 
 * Properties
 
